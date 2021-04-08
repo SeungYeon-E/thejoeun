@@ -27,7 +27,7 @@ class Exercise {
 	void Exercise01() {
 		Scanner scanner = new Scanner(System.in);
 		
-		AddNum addNum = new AddNum();//클래스생성 덧셈변수 = new 생성자생성
+		AddNum addNum = new AddNum();//클래스생성 instance = new 생성자생성
 		SubNum subNum = new SubNum();
 		DivNum divNum = new DivNum();
 		MulNum mulNum = new MulNum();
@@ -61,7 +61,7 @@ class Exercise {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		AddNum addNum = new AddNum();//클래스생성 덧셈변수 = new 생성자생성
+		AddNum addNum = new AddNum();//클래스생성 instance = new 생성자생성
 		SubNum subNum = new SubNum();
 		DivNum divNum = new DivNum();
 		MulNum mulNum = new MulNum();
@@ -90,7 +90,7 @@ class Exercise {
 	
 		Scanner scanner = new Scanner(System.in);
 		
-		Gugudan gugudan = new Gugudan();//클래스생성 매개변수 = new 생성자생성
+		Gugudan gugudan = new Gugudan();//클래스생성 instance = new 생성자생성
 		
 		//정수 입력값 받아서 넣기
 		System.out.print("구구단을 출력할 숫자를 입력하세요 :");
@@ -105,7 +105,7 @@ class Exercise {
 	
 		Scanner scanner = new Scanner(System.in);
 		
-		SumNum sumNum = new SumNum();//클래스생성 매개변수 = new 생성자생성
+		SumNum sumNum = new SumNum();//클래스생성 instance = new 생성자생성
 		
 		//정수 입력값 받아서 넣기
 		System.out.print("Enter an interger(0 ~ 9) : ");
@@ -116,11 +116,11 @@ class Exercise {
 	
 	}
 	void Exercise05() {
-		//입력한 한자릿수 정수의 합을 출력하는 프로그램을 객체지향 형식으로 작성
+		//입력한 두 정수의 합을 출력하는 프로그램을 객체지향 형식으로 작성
 	
 		Scanner scanner = new Scanner(System.in);
 		
-		TotalNum totalNum = new TotalNum();//클래스생성 매개변수 = new 생성자생성
+		TotalNum totalNum = new TotalNum();//클래스생성 instance = new 생성자생성
 		
 		//정수 입력값 받아서 넣기
 		System.out.print("첫번째 숫자를 입력하세요 : ");
