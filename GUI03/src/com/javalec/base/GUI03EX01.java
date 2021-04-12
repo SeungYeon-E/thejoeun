@@ -163,51 +163,63 @@ public class GUI03EX01 {
 	}
 	private void chCheck() {
 		
+		lbResult1.setText("");
+		lbResult2.setText("");
+		lbResult3.setText("");
+		lbResult4.setText("");
+		
 		int Num1 = Integer.parseInt(tfNum1.getText());
 		int Num2 = Integer.parseInt(tfNum2.getText());
-		int result = 0;
+		
+		String result = "";
 		double doubleresult = 0;
 		String calc = "";
-		int[] Array = new int[4];
+		
+		JLabel[] labels = {lbResult1, lbResult2, lbResult3, lbResult4};
 		
 		if (chAdd.isSelected()==true) {
 			calc = "+";
-			result = Num1 + Num2;
-//			lbResult1.setText(Num1 + calc + Num2 + " = " + result);
+			result = Integer.toString(Num1 + Num2);
+			lbResult1.setText(Num1 + calc + Num2 + " = " + result);
 			
-		}else if (chSub.isSelected()==true) {
+		}
+		
+		if (chSub.isSelected()==true) {
 			calc = "-";
-			result = Num1 - Num2;
-//			lbResult2.setText(Num1 + calc + Num2 + " = " + result);
+			result = Integer.toString(Num1 - Num2);
+			lbResult2.setText(Num1 + calc + Num2 + " = " + result);
 			
-		}else if (chMul.isSelected()==true) {
+		}
+		
+		if (chMul.isSelected()==true) {
 			calc = "*";
-			result = Num1 * Num2;
-//			lbResult3.setText(Num1 + calc + Num2 + " = " + result);
+			result = Integer.toString(Num1 * Num2);
+			lbResult3.setText(Num1 + calc + Num2 + " = " + result);
 			
-		}else if (chDiv.isSelected()==true) {
+		}
+		
+		if (chDiv.isSelected()==true) {
 			if ((Num1==0 && Num2==0) || (Num2==0)) {// 0/2는 나눌수 있는값이지만 2/0은 나눌수없다.
 				calc = "나눌 수 없는 값입니다.";
 				
 			}else {
 				calc = "/";
-				doubleresult = (double) Num1 / Num2;
-//				lbResult4.setText(Num1 + calc + Num2 + " = " + result);
+				result = String.format("%.2f", 1.0*Num1 / Num2);
+				lbResult4.setText(Num1 + calc + Num2 + " = " + result);
 			}
 		}
 		
-		
-		if(lbResult1.getText().equals("")) {
-			lbResult1.setText(Num1 + calc + Num2 + " = " + result);
-			
-		}else if(lbResult2.getText().equals("")) {
-			lbResult2.setText(Num1 + calc + Num2 + " = " + result);
-			
-		}else if(lbResult3.getText().equals("")) {
-			lbResult3.setText(Num1 + calc + Num2 + " = " + result);
-			
-		}else if(lbResult4.getText().equals("")) {
-			lbResult4.setText(Num1 + calc + Num2 + " = " + String.format("%.2f", doubleresult));
+		for (int i = 0 ;  i < labels.length; i++){
+			if (labels[i].getText().equals("")) {
+				for(int j = i; j < labels.length; j++){
+					if (!labels[j].getText().equals("")) {
+						labels[i].setText(labels[j].getText());
+						labels[j].setText("");
+						break;
+					}
+				}
+			}
 		}
+		
 	}
 }
