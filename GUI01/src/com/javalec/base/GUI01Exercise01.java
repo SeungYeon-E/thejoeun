@@ -212,7 +212,7 @@ public class GUI01Exercise01 {
 				tfResult.setText(Integer.toString(wkNumResult));
 				
 			}else {
-				if(wkNum1==0 || wkNum2==0) {
+				if((wkNum1==0 && wkNum2==0) || (wkNum2 == 0)){
 					JOptionPane.showMessageDialog(null, "나눌수없는 값입니다.");
 				}else {
 					wkNumResult = wkNum1 / wkNum2;
