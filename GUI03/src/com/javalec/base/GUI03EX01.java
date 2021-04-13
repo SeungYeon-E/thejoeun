@@ -24,7 +24,7 @@ public class GUI03EX01 {
 	private JLabel lbResult2;
 	private JLabel lbResult3;
 	private JLabel lbResult4;
-
+	
 	/**
 	 * Launch the application.
 	 */
@@ -175,7 +175,10 @@ public class GUI03EX01 {
 		double doubleresult = 0;
 		String calc = "";
 		
+		
+		
 		JLabel[] labels = {lbResult1, lbResult2, lbResult3, lbResult4};
+		
 		
 		if (chAdd.isSelected()==true) {
 			calc = "+";
@@ -204,7 +207,8 @@ public class GUI03EX01 {
 				
 			}else {
 				calc = "/";
-				result = String.format("%.2f", 1.0*Num1 / Num2);
+//				result = String.format("%.2f", 1.0*Num1 / Num2);
+				result = String.format("%.2f", (double)Num1 / Num2); //오...이렇게도 된다?
 				lbResult4.setText(Num1 + calc + Num2 + " = " + result);
 			}
 		}
