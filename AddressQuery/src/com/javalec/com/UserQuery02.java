@@ -697,7 +697,7 @@ public class UserQuery02 {
 			tfRelation.setEditable(true);
 			btnQuery.setEnabled(true);
 			
-		}else if (rdbtnDelete.isSelected()==true) {
+		}else if (rdbtnDelete.isSelected()==true || rdbtnSearch.isSelected()==true){
 			tfName.setEditable(false);
 			tfTelno.setEditable(false);
 			tfAddress.setEditable(false);
@@ -705,13 +705,6 @@ public class UserQuery02 {
 			tfRelation.setEditable(false);
 			btnQuery.setEnabled(true);
 			
-		}else if (rdbtnSearch.isSelected()==true) {
-			tfName.setEditable(false);
-			tfTelno.setEditable(false);
-			tfAddress.setEditable(false);
-			tfEmail.setEditable(false);
-			tfRelation.setEditable(false);
-			btnQuery.setEnabled(true);
 		}
 		
 		tableInit();
