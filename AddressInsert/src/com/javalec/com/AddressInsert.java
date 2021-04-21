@@ -25,7 +25,7 @@ public class AddressInsert {
 	private JButton btnOK;
 	
 	//Database 환경 정의
-	private final String url_mysql = "jdbc:mysql://192.168.0.4/useraddress?serverTimezone=UTC&characterEncoding=utf8&useSSL=FALSE";
+	private final String url_mysql = "jdbc:mysql://192.168.2.2/useraddress?serverTimezone=UTC&characterEncoding=utf8&useSSL=FALSE";
 	private final String id_mysql = "root";
 	private final String pw_mysql = "qwer1234";
 	
@@ -168,7 +168,6 @@ public class AddressInsert {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-	
 		
 	}
 	
