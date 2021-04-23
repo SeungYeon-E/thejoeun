@@ -1,47 +1,54 @@
-package com.khankong.address;
+package com.khankong.main;
 
-import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import com.khankong.function.Bean;
 import com.khankong.function.DbAction;
+import com.khankong.function.ShareVar;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JRadioButton;
-import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-public class Address extends JFrame {
+public class Main extends JFrame {
 
 	/**
 	 * 
 	 */
-	
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	@SuppressWarnings("rawtypes")
@@ -50,8 +57,8 @@ public class Address extends JFrame {
 	private JButton btnQuery;
 	private JScrollPane scrollPane;
 	private JTable Inner_Table;
-	// --- Database & Table
-	private final DefaultTableModel Outer_Table = new DefaultTableModel(); // ################
+	// --- Table
+	private final DefaultTableModel Outer_Table = new DefaultTableModel();
     // -----
     private JLabel lblSequenceNo;
     private JLabel label;
@@ -71,6 +78,10 @@ public class Address extends JFrame {
     private JRadioButton rbDelete;
     private JRadioButton rbQuery;
     private final ButtonGroup buttonGroup = new ButtonGroup();
+    private JLabel label_5;
+    private JTextField tfFilePath;
+    private JButton btnFilePath;
+    private JLabel lblImage;
 
 
 	/**
@@ -80,7 +91,7 @@ public class Address extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Address frame = new Address();
+					Main frame = new Main();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -92,18 +103,19 @@ public class Address extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Address() {
+	public Main() {
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowActivated(WindowEvent e) {
+			public void windowOpened(WindowEvent e) {
 				TableInit();
 				SearchAction();
 				ScreenPartition();
+				
 			}
 		});
-		setTitle("주소록");
+		setTitle(">>>> 주소록 <<<<");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 477, 522);
+		setBounds(100, 100, 472, 637);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -174,8 +186,7 @@ public class Address extends JFrame {
 				ActionPartition();
 			}
 		});
-		btnOK.setBounds(313, 451, 117, 29);
-		btnOK.setBackground(new Color(255,118,0));
+		btnOK.setBounds(315, 549, 117, 29);
 		contentPane.add(btnOK);
 		
 		rbInsert = new JRadioButton("입력");
@@ -209,10 +220,19 @@ public class Address extends JFrame {
 		contentPane.add(rbDelete);
 		
 		rbQuery = new JRadioButton("검색");
+		rbQuery.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ScreenPartition();
+			}
+		});
 		buttonGroup.add(rbQuery);
 		rbQuery.setSelected(true);
 		rbQuery.setBounds(206, 18, 67, 23);
 		contentPane.add(rbQuery);
+		contentPane.add(getLabel_5());
+		contentPane.add(getTfFilePath());
+		contentPane.add(getBtnFilePath());
+		contentPane.add(getLblImage());
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private JComboBox getCbSelection() {
@@ -255,6 +275,12 @@ public class Address extends JFrame {
 	private JTable getInner_Table() {
 		if (Inner_Table == null) {
 			Inner_Table = new JTable();
+			Inner_Table.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					TableClick();
+				}
+			});
 			Inner_Table.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
@@ -290,7 +316,7 @@ public class Address extends JFrame {
 
         int vColIndex = 0;
         TableColumn col = Inner_Table.getColumnModel().getColumn(vColIndex);
-        int width = 30;
+        int width = 40;
         col.setPreferredWidth(width);
 
         vColIndex = 1;
@@ -310,28 +336,26 @@ public class Address extends JFrame {
 
 	}
 	
-	//DB to Table
+	//전체 검색결과를 Table로 
 	private void SearchAction(){
-		
 		DbAction dbAction = new DbAction();
-		ArrayList<Bean> beanList =  dbAction.selectList();
+		ArrayList<Bean> beanList = dbAction.SelectList();
 		
 		int listCount = beanList.size();
 		
-		for(int i=0; i<listCount; i++) {
-			String temp = Integer.toString(beanList.get(i).getSeqno());// 스트링으로 보내줘야해
-			String[] qTxt = {temp, beanList.get(i).getName(), beanList.get(i).getTelno(), beanList.get(i).getRelation()};
+		for (int index = 0; index < listCount; index++) {
+			String temp = Integer.toString(beanList.get(index).getSeqno());
+			String[] qTxt = {temp, beanList.get(index).getName(), beanList.get(index).getTelno(), beanList.get(index).getRelation()};
 			Outer_Table.addRow(qTxt);
 		}
-		
+
 	}
 	
-	// Click the Table
+	// Table에서 Row를 Click후 검색 
 	private void TableClick() {
-        
-		int i = Inner_Table.getSelectedRow();
-        String tmpSequence = (String)Inner_Table.getValueAt(i, 0);
-        int wkSequence = Integer.parseInt(tmpSequence);
+        int i = Inner_Table.getSelectedRow();
+        String tkSequence = (String)Inner_Table.getValueAt(i, 0);
+        int wkSequence = Integer.parseInt(tkSequence);
         
         DbAction dbAction = new DbAction(wkSequence);
         Bean bean = dbAction.TableClick();
@@ -342,10 +366,26 @@ public class Address extends JFrame {
         tfAddress.setText(bean.getAddress());
         tfEmail.setText(bean.getEmail());
         tfRelation.setText(bean.getRelation());
+        
+        // Image처리
+        // File name이 틀려야 즉각 보여주기가 가능하여   
+        // ShareVar에서 int값으로 정의하여 계속 증가하게 하여 file name으로 사용후 삭제
+        
+		String filePath = Integer.toString(ShareVar.filename);
+		tfFilePath.setText(filePath);
+		
+		lblImage.setIcon(new ImageIcon(filePath));
+		lblImage.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		File file = new File(filePath);
+		file.delete();
+		
+		tfFilePath.setText("");
 
+        
 	}
 	
-	// Condition Query
+	// 조건 검색 항목 결정 
 	private void ConditionQuery() {
 		int i = cbSelection.getSelectedIndex();
 		String ConditionQueryColumn = "";
@@ -377,78 +417,65 @@ public class Address extends JFrame {
 		tfAddress.setText("");
 		tfEmail.setText("");
 		tfRelation.setText("");
+		tfFilePath.setText("");
+		
 	}
 	
 	// 조건검색 실행 
 	private void ConditionQueryAction(String ConditionQueryColumn) {
-		
-		String selecttion = tfSelection.getText().trim();
-		DbAction dbAction = new DbAction(selecttion, ConditionQueryColumn);
-		ArrayList<Bean> beanList = dbAction.SearchAction();
+		DbAction dbAction = new DbAction(ConditionQueryColumn, tfSelection.getText());
+		ArrayList<Bean> beanList = dbAction.ConditionList();
 		
 		int listCount = beanList.size();
 		
-		for(int i=0; i<listCount; i++) {
-			String temp = Integer.toString(beanList.get(i).getSeqno());// 스트링으로 보내줘야해
-			String[] qTxt = {temp, beanList.get(i).getName(), beanList.get(i).getTelno(), beanList.get(i).getRelation()};
+		for (int index = 0; index < listCount; index++) {
+			String temp = Integer.toString(beanList.get(index).getSeqno());
+			String[] qTxt = {temp, beanList.get(index).getName(), beanList.get(index).getTelno(), beanList.get(index).getRelation()};
 			Outer_Table.addRow(qTxt);
 		}
-		
 	}
-			
 	
 	// Data 수정
 	private void UpdateAction() {
+		int seqno = Integer.parseInt(tfSeqno.getText());
+		String name = tfName.getText();
+		String telno = tfTelno.getText();
+		String address = tfAddress.getText();
+		String email = tfEmail.getText();
+		String relation = tfRelation.getText();
 		
-		String name = tfName.getText().trim();
-		String telno = tfTelno.getText().trim();
-		String address = tfAddress.getText().trim();
-		String email = tfEmail.getText().trim();
-		String relation = tfRelation.getText().trim();
-		
-		int i = Inner_Table.getSelectedRow();
-        String tmpSequence = (String)Inner_Table.getValueAt(i, 0);
-        int wkSequence = Integer.parseInt(tmpSequence);
-
-		DbAction dbAction = new DbAction(wkSequence, name, telno, address, email, relation); //인스턴스 객체 생성
-		boolean msg = dbAction.updateAction();
-		
-		if(msg == true) {
-			//null은 아무데나 띄워라 this는 내 판넬 위에 뜨게 하는거
-			JOptionPane.showMessageDialog(this, tfName.getText()+" 님의 정보가 수정 되었습니다.!",
-           "입력 완료!", 
-           JOptionPane.INFORMATION_MESSAGE);  
-			
-		}else {
-			JOptionPane.showMessageDialog(this, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!",
-            "Critical Error!", 
-            JOptionPane.ERROR_MESSAGE);      
+		// Image File
+		FileInputStream input = null;
+		File file = new File(tfFilePath.getText());
+		try {
+			input = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
+		DbAction dbaction = new DbAction(seqno, name, telno, address, email, relation, input);
+		boolean aaa = dbaction.UpdateAction();
+		if(aaa == true){
+	          JOptionPane.showMessageDialog(null, tfName.getText()+" 님의 정보가 수정 되었습니다.!");                    
+		}else{
+	          JOptionPane.showMessageDialog(null, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!");                    
+		}
+
 	}
 	
 	// Data 삭제
 	private void DeleteAction() {
+		int seqno = Integer.parseInt(tfSeqno.getText());
 		
-		int i = Inner_Table.getSelectedRow();
-        String tmpSequence = (String)Inner_Table.getValueAt(i, 0);
-        int wkSequence = Integer.parseInt(tmpSequence);
-
-        
-		DbAction dbAction = new DbAction(wkSequence); //인스턴스 객체 생성
-		boolean msg = dbAction.deleteAction();
-		
-		if(msg == true) {
-			//null은 아무데나 띄워라 this는 내 판넬 위에 뜨게 하는거
-			JOptionPane.showMessageDialog(this, tfName.getText()+" 님의 정보가 삭제 되었습니다.!",
-           "입력 완료!", 
-           JOptionPane.INFORMATION_MESSAGE);  
-			
-		}else {
-			JOptionPane.showMessageDialog(this, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!",
-            "Critical Error!", 
-            JOptionPane.ERROR_MESSAGE);      
+		DbAction dbaction = new DbAction(seqno);
+		boolean aaa = dbaction.DeleteAction();
+		if(aaa == true){
+	          JOptionPane.showMessageDialog(null, tfName.getText()+" 님의 정보가 삭제 되었습니다.!");                    
+		}else{
+	          JOptionPane.showMessageDialog(null, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!");                    
 		}
+	
 	}
 	
 	// 화면 정리 
@@ -456,6 +483,7 @@ public class Address extends JFrame {
 		// 검색일 경우 
 		if(rbQuery.isSelected() == true) {
 			btnOK.setVisible(false);
+			btnFilePath.setVisible(false);
 			tfName.setEditable(false);
 			tfTelno.setEditable(false);
 			tfAddress.setEditable(false);
@@ -466,6 +494,7 @@ public class Address extends JFrame {
 		// 입력일 경우
 		if(rbInsert.isSelected() == true) {
 			btnOK.setVisible(true);
+			btnFilePath.setVisible(true);
 			tfName.setEditable(true);
 			tfTelno.setEditable(true);
 			tfAddress.setEditable(true);
@@ -476,6 +505,7 @@ public class Address extends JFrame {
 		// 수정일 경우
 		if(rbUpdate.isSelected() == true) {
 			btnOK.setVisible(true);
+			btnFilePath.setVisible(true);
 			tfName.setEditable(true);
 			tfTelno.setEditable(true);
 			tfAddress.setEditable(true);
@@ -486,12 +516,14 @@ public class Address extends JFrame {
 		// 삭제일 경우 
 		if(rbDelete.isSelected() == true) {
 			btnOK.setVisible(true);
+			btnFilePath.setVisible(true);
 			tfName.setEditable(false);
 			tfTelno.setEditable(false);
 			tfAddress.setEditable(false);
 			tfEmail.setEditable(false);
 			tfRelation.setEditable(false);
 		}
+		ClearColumn();
 	}
 	
 	// Action 구분 
@@ -510,10 +542,7 @@ public class Address extends JFrame {
 				SearchAction();
 				ClearColumn();
 			}else {
-				JOptionPane.showMessageDialog(this, "주소록 정보 입력! " + "\n" + 
-						"Data를 입력하세요 하세요!",
-						"주소록 정보", 
-						JOptionPane.INFORMATION_MESSAGE);        			
+				JOptionPane.showMessageDialog(null, "주소록 정보 입력! ");        			
 				
 			}			
 			ScreenPartition();
@@ -528,10 +557,7 @@ public class Address extends JFrame {
 				SearchAction();
 				ClearColumn();
 			}else {
-				JOptionPane.showMessageDialog(this, "주소록 정보 수정 ! " + "\n" + 
-						"Data를 입력하세요 하세요!",
-						"주소록 정보", 
-						JOptionPane.INFORMATION_MESSAGE);        			
+				JOptionPane.showMessageDialog(null, "주소록 정보 수정 ! ");        			
 				
 			}			
 			ScreenPartition();
@@ -575,33 +601,87 @@ public class Address extends JFrame {
 	}
 	
 	private void insertAction(){
+		String name = tfName.getText();
+		String telno = tfTelno.getText();
+		String address = tfAddress.getText();
+		String email = tfEmail.getText();
+		String relation = tfRelation.getText();
 		
-		String name = tfName.getText().trim();
-		String telno = tfTelno.getText().trim();
-		String address = tfAddress.getText().trim();
-		String email = tfEmail.getText().trim();
-		String relation = tfRelation.getText().trim();
-		
-		DbAction dbAction = new DbAction(name, telno, address, email, relation); //인스턴스 객체 생성
-		boolean msg = dbAction.insertAction();
-		
-		if(msg == true) {
-			//null은 아무데나 띄워라 this는 내 판넬 위에 뜨게 하는거
-			JOptionPane.showMessageDialog(this, tfName.getText()+" 님의 정보가 입력 되었습니다.!",
-           "입력 완료!", 
-           JOptionPane.INFORMATION_MESSAGE);  
-			
-		}else {
-			JOptionPane.showMessageDialog(this, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!",
-            "Critical Error!", 
-            JOptionPane.ERROR_MESSAGE);      
+		// Image File
+		FileInputStream input = null;
+		File file = new File(tfFilePath.getText());
+		try {
+			input = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		
+		DbAction dbaction = new DbAction(name, telno, address, email, relation, input);
+		boolean aaa = dbaction.InsertAction();
+		if(aaa == true){
+	          JOptionPane.showMessageDialog(null, tfName.getText()+" 님의 정보가 입력 되었습니다.!");                    
+		}else{
+	          JOptionPane.showMessageDialog(null, "DB에 자료 입력중 에러가 발생했습니다! \n 시스템관리자에 문의하세요!");                    
+		}
 	}
-
 	
+	private JLabel getLabel_5() {
+		if (label_5 == null) {
+			label_5 = new JLabel("이미지 파일경로 :");
+			label_5.setBounds(29, 456, 101, 16);
+		}
+		return label_5;
+	}
 	
+	private JTextField getTfFilePath() {
+		if (tfFilePath == null) {
+			tfFilePath = new JTextField();
+			tfFilePath.setEditable(false);
+			tfFilePath.setColumns(10);
+			tfFilePath.setBounds(129, 451, 301, 26);
+		}
+		return tfFilePath;
+	}
+	
+	private JButton getBtnFilePath() {
+		if (btnFilePath == null) {
+			btnFilePath = new JButton("파일 경로");
+			btnFilePath.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					FilePath();
+				}
+			});
+			btnFilePath.setBounds(315, 478, 117, 29);
+		}
+		return btnFilePath;
+	}
+	
+	private JLabel getLblImage() {
+		if (lblImage == null) {
+			lblImage = new JLabel("");
+			lblImage.setIcon(new ImageIcon("/Users/tj/Documents/Kenny/Temp/null.png"));
+			lblImage.setHorizontalAlignment(SwingConstants.CENTER);
+			lblImage.setBounds(22, 484, 215, 112);
+		}
+		return lblImage;
+	}
+	
+	private void FilePath() {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG, BMP", "jpg","png","bmp");
+		chooser.setFileFilter(filter);
+		
+		int ret = chooser.showOpenDialog(null);
+		if(ret != JFileChooser.APPROVE_OPTION) {
+			JOptionPane.showMessageDialog(null, "파일을 선택하지 않았습니다!", "경고", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		String filePath = chooser.getSelectedFile().getPath();
+		tfFilePath.setText(filePath);
+		lblImage.setIcon(new ImageIcon(filePath));
+		lblImage.setHorizontalAlignment(SwingConstants.CENTER);
+	}
 	
 	
 	
